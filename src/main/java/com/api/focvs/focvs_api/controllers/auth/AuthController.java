@@ -6,6 +6,10 @@ import com.api.focvs.focvs_api.dtos.auth.AuthResponseDTO;
 import com.api.focvs.focvs_api.dtos.auth.LoginRequestDTO;
 import com.api.focvs.focvs_api.dtos.auth.RegisterRequestDTO;
 import com.api.focvs.focvs_api.dtos.user.UserAccountDTO;
+import com.api.focvs.focvs_api.exceptions.account.AccountNotFoundException;
+import com.api.focvs.focvs_api.exceptions.account.EmailAlreadyInUseException;
+import com.api.focvs.focvs_api.exceptions.account.PasswordDoesNotMatchException;
+import com.api.focvs.focvs_api.exceptions.user.UserNotFoundException;
 import com.api.focvs.focvs_api.infra.security.password.IPasswordService;
 import com.api.focvs.focvs_api.infra.security.token.ITokenService;
 import com.api.focvs.focvs_api.services.account.IAccountService;
@@ -41,15 +45,15 @@ public class AuthController implements IAuthController {
     @Override
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) throws Exception {
-        Account account = this.accountService.findByEmail(loginRequestDTO.email()).orElseThrow(() -> new RuntimeException("Account not found."));
+        Account account = this.accountService.findByEmail(loginRequestDTO.email()).orElseThrow(() -> new AccountNotFoundException("Account not found."));
 
         if (!this.passwordService.matches(loginRequestDTO.password(), account.getPassword())) {
-            throw new RuntimeException("Password does not match.");
+            throw new PasswordDoesNotMatchException("Password does not match.");
         }
 
         User user = this.userService
                 .findById(account.getUser().getId())
-                .orElseThrow(() -> new RuntimeException("User not found."));
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
 
         String token = this.tokenService.generateToken(
                 new UserAccountDTO(
@@ -67,7 +71,7 @@ public class AuthController implements IAuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO registerRequestDTO) throws Exception {
         if (this.accountService.findByEmail(registerRequestDTO.email()).isPresent()) {
-            throw new RuntimeException("Email already in use.");
+            throw new EmailAlreadyInUseException("Email already in use.");
         }
 
         User user = new User(registerRequestDTO);
