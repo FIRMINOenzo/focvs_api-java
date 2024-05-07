@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    environment:
+      - DB_URL=jdbc:postgresql://localhost:5432/focvs
+      - DB_USER=admin
+      - DB_PASSWORD=123
+      - JWT_SECRET=focvs-api-jwt-123qwe123qwe
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=focvs
+    ports:
+      - "5432:5432"

@@ -35,7 +35,7 @@ public class AuthControllerExceptionHandler extends ResponseEntityExceptionHandl
 
     @ExceptionHandler(UserNotFoundException.class)
     private ResponseEntity<ErrorMessageDTO> handleUserNotFoundException(UserNotFoundException exception) {
-        ErrorMessageDTO errorMessageDTO = new ErrorMessageDTO(HttpStatus.UNAUTHORIZED, true, exception.getMessage());
+        ErrorMessageDTO errorMessageDTO = new ErrorMessageDTO(HttpStatus.NOT_FOUND, true, exception.getMessage());
         return ResponseEntity.status(errorMessageDTO.status()).body(errorMessageDTO);
     }
 
